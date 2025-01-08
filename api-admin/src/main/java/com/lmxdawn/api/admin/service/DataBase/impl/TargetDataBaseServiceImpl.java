@@ -27,4 +27,19 @@ public class TargetDataBaseServiceImpl implements TargetDataBaseService {
         List<TargetDataBase> targetDataBaseList = targetDao.listPage(target);
         return targetDataBaseList;
     }
+
+    @Override
+    public boolean insertTargetDataBase(TargetDataBase dataBase) {
+        return targetDao.insertTargetDataBase(dataBase);
+    }
+
+    @Override
+    public boolean updateTargetDataBase(TargetDataBase dataBase) {
+        return targetDao.updateTargetDataBase(dataBase);
+    }
+
+    @Override
+    public boolean deleteById(Integer id) {
+        return targetDao.deleteById(id);
+    }
 }

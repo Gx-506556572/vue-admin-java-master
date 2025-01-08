@@ -2,10 +2,8 @@ package com.lmxdawn.api.admin.entity.DataBase;
 
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
-public class TargetDataBase {
+public class SourceDataBase {
     private Integer id;
     //数据库连接名称
     private String connectName;

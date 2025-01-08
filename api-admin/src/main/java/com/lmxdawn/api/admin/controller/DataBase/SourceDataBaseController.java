@@ -2,46 +2,41 @@ package com.lmxdawn.api.admin.controller.DataBase;
 
 import com.github.pagehelper.PageInfo;
 import com.lmxdawn.api.admin.annotation.AuthRuleAnnotation;
-import com.lmxdawn.api.admin.converter.AdSaveForm2AdConverter;
+import com.lmxdawn.api.admin.entity.DataBase.SourceDataBase;
 import com.lmxdawn.api.admin.entity.DataBase.TargetDataBase;
-import com.lmxdawn.api.admin.entity.ad.Ad;
+import com.lmxdawn.api.admin.req.DataBase.SourceDataBaseQueryRequest;
 import com.lmxdawn.api.admin.req.DataBase.TargetDataBaseQueryRequest;
-import com.lmxdawn.api.admin.req.ad.AdSaveRequest;
 import com.lmxdawn.api.admin.res.PageSimpleResponse;
-import com.lmxdawn.api.admin.res.ad.AdResponse;
+import com.lmxdawn.api.admin.service.DataBase.SourceDataBaseService;
 import com.lmxdawn.api.admin.service.DataBase.TargetDataBaseService;
 import com.lmxdawn.api.common.enums.ResultEnum;
 import com.lmxdawn.api.common.res.BaseResponse;
 import com.lmxdawn.api.common.util.ResultVOUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/targetBase")
-public class TargetDataBaseController {
+@RequestMapping("/admin/sourceBase")
+public class SourceDataBaseController {
 
     @Resource
-    private TargetDataBaseService targetDataBaseService;
+    private SourceDataBaseService sourceDataBaseService;
 
-    @AuthRuleAnnotation("/admin/targetBase/list")
+    @AuthRuleAnnotation("/admin/sourceBase/list")
     @GetMapping("/list")
-    public BaseResponse listPage(TargetDataBaseQueryRequest targetDataBaseQueryRequest)
+    public BaseResponse listPage(SourceDataBaseQueryRequest request)
     {
-        List<TargetDataBase> targetDataBaseList = targetDataBaseService.listPage(targetDataBaseQueryRequest);
-        PageInfo<TargetDataBase> pageInfo = new PageInfo<>(targetDataBaseList);
-        PageSimpleResponse<TargetDataBase> pageSimpleResponse = new PageSimpleResponse<>();
+        List<SourceDataBase> sourceDataBaseList = sourceDataBaseService.listPage(request);
+        PageInfo<SourceDataBase> pageInfo = new PageInfo<>(sourceDataBaseList);
+        PageSimpleResponse<SourceDataBase> pageSimpleResponse = new PageSimpleResponse<>();
         pageSimpleResponse.setTotal(pageInfo.getTotal());
-        pageSimpleResponse.setList(targetDataBaseList);
+        pageSimpleResponse.setList(sourceDataBaseList);
         return ResultVOUtils.success(pageSimpleResponse);
     }
 
@@ -50,14 +45,14 @@ public class TargetDataBaseController {
      *
      * @return
      */
-    @AuthRuleAnnotation("/admin/targetBase/save")
+    @AuthRuleAnnotation("/admin/sourceBase/save")
     @PostMapping("/save")
-    public BaseResponse save(@RequestBody TargetDataBase  dataBase) {
+    public BaseResponse save(@RequestBody SourceDataBase dataBase) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = now.format(formatter);
         dataBase.setCreateTime(formattedDate);
-        boolean b = targetDataBaseService.insertTargetDataBase(dataBase);
+        boolean b = sourceDataBaseService.insertTargetDataBase(dataBase);
         if (!b) {
             return ResultVOUtils.error(ResultEnum.NOT_NETWORK);
         }
@@ -67,26 +62,26 @@ public class TargetDataBaseController {
         return ResultVOUtils.success(res);
     }
 
-    @AuthRuleAnnotation("/admin/targetBase/update")
+    @AuthRuleAnnotation("/admin/sourceBase/update")
     @PostMapping("/update")
-    public BaseResponse update(@RequestBody TargetDataBase  dataBase) {
+    public BaseResponse update(@RequestBody SourceDataBase  dataBase) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = now.format(formatter);
         dataBase.setCreateTime(formattedDate);
-        boolean b = targetDataBaseService.updateTargetDataBase(dataBase);
+        boolean b = sourceDataBaseService.updateTargetDataBase(dataBase);
         if (!b) {
             return ResultVOUtils.error(ResultEnum.NOT_NETWORK);
         }
         return ResultVOUtils.success();
     }
 
-    @AuthRuleAnnotation("/admin/targetBase/delete")
+    @AuthRuleAnnotation("/admin/sourceBase/delete")
     @PostMapping("/delete")
-    public BaseResponse delete(@RequestBody TargetDataBase dataBase) {
+    public BaseResponse delete(@RequestBody SourceDataBase dataBase) {
 
 
-        boolean b = targetDataBaseService.deleteById(dataBase.getId());
+        boolean b = sourceDataBaseService.deleteById(dataBase.getId());
         if (!b) {
             return ResultVOUtils.error(ResultEnum.NOT_NETWORK);
         }

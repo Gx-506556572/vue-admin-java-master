@@ -8,4 +8,10 @@ import java.util.List;
 
 public interface TargetDataBaseService {
     List<TargetDataBase> listPage(TargetDataBaseQueryRequest targetDataBaseQueryRequest);
+
+    boolean insertTargetDataBase(TargetDataBase dataBase);
+
+    boolean updateTargetDataBase(TargetDataBase dataBase);
+
+    boolean deleteById(Integer id);
 }

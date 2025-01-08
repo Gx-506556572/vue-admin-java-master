@@ -12,4 +12,10 @@ import java.util.List;
 public interface TargetDataBaseDao {
 
     List<TargetDataBase> listPage(TargetDataBaseQueryRequest target);
+
+    boolean insertTargetDataBase(TargetDataBase dataBase);
+
+    boolean updateTargetDataBase(TargetDataBase dataBase);
+
+    boolean deleteById(Integer id);
 }

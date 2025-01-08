@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper namespace="com.lmxdawn.api.admin.dao.DataBase.TargetDataBaseDao">
+<mapper namespace="com.lmxdawn.api.admin.dao.DataBase.SourceDataBaseDao">
 
-    <select id="listPage" resultType="com.lmxdawn.api.admin.entity.DataBase.TargetDataBase">
+    <select id="listPage" resultType="com.lmxdawn.api.admin.entity.DataBase.SourceDataBase">
         select id,
                connect_name,
                database_type,
@@ -17,7 +17,7 @@
                database_url,
                database_argument,
                create_time
-        from target_database
+        from source_database
         where del_flag = 0
         <if test="connectName != null and connectName != ''">
             and connect_name like '%' || #{connectName} || '%'        </if>
@@ -25,7 +25,7 @@
     </select>
 
     <insert id="insertTargetDataBase" keyProperty="id" parameterType="com.lmxdawn.api.admin.entity.DataBase.TargetDataBase">
-        insert into target_database(connect_name,
+        insert into source_database(connect_name,
                                     database_type,
                                     database_version,
                                     server_url,
@@ -51,7 +51,7 @@
     </insert>
 
     <update id="updateTargetDataBase">
-        update target_database
+        update source_database
         <set>
             <if test="connectName != null and connectName != ''">
                 connect_name = #{connectName},
@@ -88,7 +88,7 @@
     </update>
 
     <update id="deleteById">
-        update target_database
+        update source_database
         set del_flag = 1
         where id = #{id}
     </update>
