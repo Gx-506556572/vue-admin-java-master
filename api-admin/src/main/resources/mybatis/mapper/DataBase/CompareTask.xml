@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.lmxdawn.api.admin.dao.DataBase.CompareTaskDao">
+
+    <select id="listPage" resultType="com.lmxdawn.api.admin.entity.DataBase.CompareTask">
+        select t.id,t.task_name,t1.connect_name as targetDatabaseName,t2.connect_name as sourceDatabaseName,t.task_status,t.task_status_desc,t.start_time,t.end_time
+        from compare_task t
+        join target_database t1 on t.target_id = t1.id and t1.del_flag = 0
+        join source_database t2 on t.source_id = t2.id and t2.del_flag = 0
+        where t.del_flag = 0
+            <if test="taskName != null and taskName != ''">
+                AND task_name LIKE '%' || #{taskName} || '%'
+            </if>
+    </select>
+
+    <insert id="insertTask" keyProperty="id" parameterType="com.lmxdawn.api.admin.entity.DataBase.CompareTask">
+        insert into compare_task(source_id,
+                                 target_id,
+                                 task_name,
+                                 create_time)
+        values (#{sourceId},
+                #{targetId},
+                #{taskName},
+                #{createTime}
+        )
+    </insert>
+
+    <update id="updateTask">
+        update compare_task
+        <set>
+            <if test="sourceId != null">
+                source_id = #{sourceId},
+            </if>
+            <if test="targetId != null">
+                target_id = #{targetId},
+            </if>
+            <if test="taskName != null and taskName != ''">
+                task_name = #{taskName},
+            </if>
+            <if test="taskStatus != null">
+                task_status
+            </if>
+        </set>
+        where id = #{id} and del_flag = 0
+    </update>
+
+    <update id="deleteById">
+        update compare_task
+        set del_flag = 1
+        where id = #{id}
+    </update>
+
+    <select id="getSourceList" resultType="java.util.HashMap">
+        select id as value,connect_name as label
+        from source_database
+        where del_flag = 0
+    </select>
+
+    <select id="targetList" resultType="java.util.HashMap">
+        select id as value,connect_name as label
+        from target_database
+        where del_flag = 0
+    </select>
+</mapper>

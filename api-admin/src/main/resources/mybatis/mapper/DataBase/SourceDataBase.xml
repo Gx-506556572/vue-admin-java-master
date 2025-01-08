@@ -24,7 +24,7 @@
         order by id desc
     </select>
 
-    <insert id="insertTargetDataBase" keyProperty="id" parameterType="com.lmxdawn.api.admin.entity.DataBase.TargetDataBase">
+    <insert id="insertTargetDataBase" keyProperty="id" parameterType="com.lmxdawn.api.admin.entity.DataBase.SourceDataBase">
         insert into source_database(connect_name,
                                     database_type,
                                     database_version,
