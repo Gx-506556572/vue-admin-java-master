@@ -93,11 +93,19 @@ public class CompareTaskController {
        List<HashMap<Integer,String>> sourceList = taskService.sourceList();
         return ResultVOUtils.success(sourceList);
     }
-    //获取源数据库列表
+    //获取目标数据库列表
     @AuthRuleAnnotation("/admin/compareTask/targetList")
     @GetMapping("/targetList")
     public BaseResponse targetList() {
         List<HashMap<Integer,String>> sourceList = taskService.targetList();
         return ResultVOUtils.success(sourceList);
+    }
+
+    //启动
+    @AuthRuleAnnotation("/admin/compareTask/startTask")
+    @PostMapping("/startTask")
+    public BaseResponse startTask(@RequestBody CompareTask  task) {
+      String s =  taskService.startTask(task);
+        return ResultVOUtils.success(s);
     }
 }

@@ -21,4 +21,6 @@ public interface CompareTaskService {
     List<HashMap<Integer, String>> sourceList();
 
     List<HashMap<Integer, String>> targetList();
+
+    String startTask(CompareTask task);
 }

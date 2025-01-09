@@ -4,7 +4,7 @@
 <mapper namespace="com.lmxdawn.api.admin.dao.DataBase.CompareTaskDao">
 
     <select id="listPage" resultType="com.lmxdawn.api.admin.entity.DataBase.CompareTask">
-        select t.id,t.task_name,t1.connect_name as targetDatabaseName,t2.connect_name as sourceDatabaseName,t.task_status,t.task_status_desc,t.start_time,t.end_time
+        select t.id,t.task_name,t1.connect_name as targetDatabaseName,t2.connect_name as sourceDatabaseName,t.task_status,t.task_status_desc,t.start_time,t.end_time,t.target_id,t.source_id
         from compare_task t
         join target_database t1 on t.target_id = t1.id and t1.del_flag = 0
         join source_database t2 on t.source_id = t2.id and t2.del_flag = 0
@@ -61,5 +61,23 @@
         select id as value,connect_name as label
         from target_database
         where del_flag = 0
+    </select>
+
+    <select id="getSourceDataBase" resultType="com.lmxdawn.api.admin.entity.DataBase.DataBaseEntity">
+        select id,connect_name,database_type,database_version,server_url,server_port,username,password,database_name,database_driver,database_url
+        from source_database
+        where id = #{id} and del_flag = 0
+    </select>
+
+    <select id="getTargetDataBase" resultType="com.lmxdawn.api.admin.entity.DataBase.DataBaseEntity">
+        select id,connect_name,database_type,database_version,server_url,server_port,username,password,database_name,database_driver,database_url
+        from target_database
+        where id = #{id} and del_flag = 0
+    </select>
+
+    <select id="getDatabaseArgument" resultType="java.lang.String">
+        select database_argument
+        from database_argument
+        where database_type = #{databaseType} and database_version = #{databaseVersion}
     </select>
 </mapper>

@@ -1,6 +1,8 @@
 package com.lmxdawn.api.admin.dao.DataBase;
 
 import com.lmxdawn.api.admin.entity.DataBase.CompareTask;
+import com.lmxdawn.api.admin.entity.DataBase.DataBaseEntity;
+import com.lmxdawn.api.admin.entity.DataBase.SourceDataBase;
 import com.lmxdawn.api.admin.entity.DataBase.TargetDataBase;
 import com.lmxdawn.api.admin.req.DataBase.TargetDataBaseQueryRequest;
 import com.lmxdawn.api.admin.req.DataBase.TaskQueryRequest;
@@ -23,4 +25,10 @@ public interface CompareTaskDao {
     List<HashMap<Integer, String>> getSourceList();
 
     List<HashMap<Integer, String>> targetList();
+
+    DataBaseEntity getSourceDataBase(Integer id);
+
+    DataBaseEntity getTargetDataBase(Integer id);
+
+    String getDatabaseArgument(String databaseType, String databaseVersion);
 }

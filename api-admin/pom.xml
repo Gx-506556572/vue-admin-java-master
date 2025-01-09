@@ -57,11 +57,26 @@
 
         <!--数据库相关-->
         <!--MySQL-->
-       <!-- <dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
-        </dependency>-->
+            <version>8.0.33</version> <!-- 或者其他你需要的版本 -->
+        </dependency>
+
+        <!-- KingbaseES 8 依赖 -->
+        <dependency>
+            <groupId>cn.com.kingbase</groupId>
+            <artifactId>kingbase8</artifactId>
+            <version>8.6.0</version>
+        </dependency>
+
+        <!-- KingbaseES 9 依赖 -->
+        <dependency>
+            <groupId>org.jeecgframework</groupId>
+            <artifactId>kingbase8</artifactId>
+            <version>9.0.0</version>
+        </dependency>
+
         <!-- 添加 SQLite 依赖 -->
         <dependency>
             <groupId>org.xerial</groupId>
@@ -105,6 +120,12 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+            <version>4.3.1</version>
         </dependency>
 
 
