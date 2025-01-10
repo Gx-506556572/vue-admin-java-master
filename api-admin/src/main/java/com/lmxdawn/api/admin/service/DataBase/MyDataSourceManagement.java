@@ -4,20 +4,20 @@ import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
 import com.baomidou.dynamic.datasource.creator.DataSourceProperty;
 import com.baomidou.dynamic.datasource.creator.basic.BasicDataSourceCreator;
 import com.lmxdawn.api.admin.entity.DataBase.DataBaseEntity;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Service
 @Slf4j
@@ -35,10 +35,24 @@ public class MyDataSourceManagement {
 
 
     public DataSource createAndGetDS(DataSourceProperty dataSourceProperty, String dsID){
-
+/*
         DataSource  dataSource = basicDataSourceCreator.createDataSource(dataSourceProperty);
-            dynamicRoutingDataSource.addDataSource(dsID, dataSource);
+            dynamicRoutingDataSource.addDataSource(dsID, dataSource);*/
 
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(dataSourceProperty.getUrl());
+        config.setUsername(dataSourceProperty.getUsername());
+        config.setPassword(dataSourceProperty.getPassword());
+        config.setDriverClassName(dataSourceProperty.getDriverClassName());
+
+        // HikariCP specific configuration
+        config.setMaximumPoolSize(10); // 设置最大连接数
+        config.setIdleTimeout(600000); // 设置空闲连接的最大存活时间（10分钟）
+        config.setMaxLifetime(1800000); // 设置连接的最大存活时间（30分钟）
+        config.setConnectionTimeout(300000); // 设置获取连接的最大等待时间（300秒）
+        config.setPoolName("HikariPool-1");
+
+        HikariDataSource dataSource = new HikariDataSource(config);
         return dataSource;
     }
     public String closeDs( String dsID){
@@ -110,4 +124,81 @@ public class MyDataSourceManagement {
         }
         return map;
     }
+
+    private Map<String, String> getTableStructure(Connection connection, String tableName) throws SQLException {
+        Map<String, String> tableStructure = new HashMap<>();
+        DatabaseMetaData metaData = connection.getMetaData();
+        ResultSet columns = metaData.getColumns(null, null, tableName, null);
+
+        while (columns.next()) {
+            String columnName = columns.getString("COLUMN_NAME");
+            String columnType = columns.getString("TYPE_NAME");
+            int columnSize = columns.getInt("COLUMN_SIZE");
+            tableStructure.put(columnName, columnType + "(" + columnSize + ")");
+        }
+        columns.close();
+        return tableStructure;
+    }
+    //启动多线程，每一个表创建一个线程
+    public Map<String, Map<String, String>> getTableStructures(DataSource dataSource, List<String> tableNames)  {
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        Map<String, Future<Map<String, String>>> futures = new HashMap<>();
+        int i = 1;
+
+        for (String tableName : tableNames) {
+            futures.put(tableName, executorService.submit(() -> {
+                try (Connection connection = dataSource.getConnection()) {
+                    return getTableStructure(connection, tableName);
+                } catch (SQLException e) {
+                    throw new RuntimeException("获取表结构失败: " + tableName, e);
+                }
+            }));
+        }
+
+        Map<String, Map<String, String>> tableStructures = new HashMap<>();
+        try {
+            for (Map.Entry<String, Future<Map<String, String>>> entry : futures.entrySet()) {
+                try {
+                    tableStructures.put(entry.getKey(), entry.getValue().get());
+                    System.out.println("Successfully retrieved structure for table: " + entry.getKey());
+                } catch (ExecutionException e) {
+                    System.err.println("Error getting table structure for table: " + entry.getKey());
+                    e.getCause().printStackTrace();
+                } catch (InterruptedException e) {
+                    System.err.println("Task interrupted for table: " + entry.getKey());
+                    Thread.currentThread().interrupt();
+                }
+            }
+        } finally {
+            executorService.shutdown();
+        }
+        return tableStructures;
+    }
+
+    // 比较两个数据库的表结构
+    public String compareTableStructures(Map<String, Map<String, String>> sourceDataBase, Map<String, Map<String, String>> targetDataBase) {
+        StringBuilder differences = new StringBuilder();
+        // 比较两个数据库中共有表的字段结构差异
+        for (String tableName : sourceDataBase.keySet()) {
+            if (targetDataBase.containsKey(tableName)) {
+                Map<String, String> sourceFields = sourceDataBase.get(tableName);
+                Map<String, String> targetFields = targetDataBase.get(tableName);
+
+                for (String fieldName : sourceFields.keySet()) {
+                    if (targetFields.containsKey(fieldName)) {
+                        String sourceField = sourceFields.get(fieldName).toLowerCase();
+                        String targetField = targetFields.get(fieldName).toLowerCase();
+                        if (!sourceField.equals(targetField)) {
+                            differences.append("表：").append(tableName).append(" 字段：").append(fieldName).append(" 结构不一致:\n")
+                                    .append("源数据库: ").append(sourceFields.get(fieldName)).append("\n")
+                                    .append("目标数据库: ").append(targetFields.get(fieldName)).append("\n");
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println(differences.toString());
+        return differences.toString();
+    }
+
 }

@@ -19,9 +19,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class CompareTaskServiceImpl implements CompareTaskService {
@@ -82,8 +81,8 @@ public class CompareTaskServiceImpl implements CompareTaskService {
         dataSourceProperty.setUsername(sourceDataBase.getUsername());
         dataSourceProperty.setPassword(sourceDataBase.getPassword());
         DataSource sourceBase=myDataSourceManagement.createAndGetDS(dataSourceProperty,sourceDataBase.getDatabaseName());
+        //所有源数据库的表数据
         HashMap<String, Integer> sourceMap = myDataSourceManagement.validateDataSource(sourceBase, sourceDataBase);
-
         //目标数据库连接
         DataSourceProperty targetProperty = new DataSourceProperty();
         targetProperty.setDriverClassName(targetDataBase.getDatabaseDriver());
@@ -91,9 +90,21 @@ public class CompareTaskServiceImpl implements CompareTaskService {
         targetProperty.setUsername(targetDataBase.getUsername());
         targetProperty.setPassword(targetDataBase.getPassword());
         DataSource targetBase=myDataSourceManagement.createAndGetDS(targetProperty,targetDataBase.getDatabaseName());
+        //所有目标数据库的表数据
         HashMap<String, Integer> targetMap = myDataSourceManagement.validateDataSource(targetBase,targetDataBase);
+        Set<String> commonTableNames = new HashSet<>(sourceMap.keySet());
+        commonTableNames.retainAll(targetMap.keySet());
+        ArrayList<String> tableNames = new ArrayList<>(commonTableNames);
+        try {
+            //key为表名，value为表结构
+            Map<String, Map<String, String>> sourceStructures = myDataSourceManagement.getTableStructures(sourceBase, tableNames);
+            Map<String, Map<String, String>> targetStructures = myDataSourceManagement.getTableStructures(targetBase, tableNames);
+            //比对表结构
+          String d = myDataSourceManagement.compareTableStructures(sourceStructures, targetStructures);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         String s = compareTable(sourceMap, targetMap);
-        System.out.println(s);
         return s;
     }
 
