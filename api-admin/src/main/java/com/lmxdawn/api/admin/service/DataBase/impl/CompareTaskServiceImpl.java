@@ -193,6 +193,7 @@ public class CompareTaskServiceImpl implements CompareTaskService {
                 stringBuilder.append("表名一致但数量不一致的表: ").append(key)
                         .append(" 源数据库: ").append(sourceMap.get(key))
                         .append(", 目标数据库: ").append(targetMap.get(key));
+                System.out.println(stringBuilder.toString());
                 details.add(stringBuilder.toString());
             }
         }

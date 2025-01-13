@@ -167,7 +167,6 @@ public class MyDataSourceManagement {
             for (Map.Entry<String, Future<Map<String, String>>> entry : futures.entrySet()) {
                 try {
                     tableStructures.put(entry.getKey(), entry.getValue().get());
-                    System.out.println("Successfully retrieved structure for table: " + entry.getKey());
                 } catch (ExecutionException e) {
                     System.err.println("Error getting table structure for table: " + entry.getKey());
                     e.getCause().printStackTrace();
@@ -203,6 +202,7 @@ public class MyDataSourceManagement {
                             differences.append("表：").append(tableName).append(" 字段：").append(fieldName).append(" 结构不一致:")
                                     .append("源数据库: ").append(sourceFields.get(fieldName))
                                     .append("目标数据库: ").append(targetFields.get(fieldName));
+                            System.out.println(differences.toString());
                             details.add(differences.toString());
                         }
                     }
