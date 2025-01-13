@@ -1,8 +1,10 @@
 package com.lmxdawn.api.admin.entity.DataBase;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class CompareTask {
     private Integer id;
     private Integer sourceId;

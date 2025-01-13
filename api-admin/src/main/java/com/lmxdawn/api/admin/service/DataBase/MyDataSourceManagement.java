@@ -3,7 +3,9 @@ package com.lmxdawn.api.admin.service.DataBase;
 import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
 import com.baomidou.dynamic.datasource.creator.DataSourceProperty;
 import com.baomidou.dynamic.datasource.creator.basic.BasicDataSourceCreator;
+import com.lmxdawn.api.admin.dao.DataBase.CompareTaskDao;
 import com.lmxdawn.api.admin.entity.DataBase.DataBaseEntity;
+import com.lmxdawn.api.admin.entity.DataBase.TaskDeatil;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -28,6 +32,9 @@ public class MyDataSourceManagement {
     private BasicDataSourceCreator basicDataSourceCreator;
     @Resource
    private DynamicRoutingDataSource dynamicRoutingDataSource;
+
+    @Resource
+    private CompareTaskDao taskDao;
     /**
      * 额外数据源
      */
@@ -176,8 +183,11 @@ public class MyDataSourceManagement {
     }
 
     // 比较两个数据库的表结构
-    public String compareTableStructures(Map<String, Map<String, String>> sourceDataBase, Map<String, Map<String, String>> targetDataBase) {
-        StringBuilder differences = new StringBuilder();
+    public void compareTableStructures(Map<String, Map<String, String>> sourceDataBase, Map<String, Map<String, String>> targetDataBase,Integer taskId) {
+        ArrayList<String> details = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = now.format(formatter);
         // 比较两个数据库中共有表的字段结构差异
         for (String tableName : sourceDataBase.keySet()) {
             if (targetDataBase.containsKey(tableName)) {
@@ -189,16 +199,17 @@ public class MyDataSourceManagement {
                         String sourceField = sourceFields.get(fieldName).toLowerCase();
                         String targetField = targetFields.get(fieldName).toLowerCase();
                         if (!sourceField.equals(targetField)) {
-                            differences.append("表：").append(tableName).append(" 字段：").append(fieldName).append(" 结构不一致:\n")
-                                    .append("源数据库: ").append(sourceFields.get(fieldName)).append("\n")
-                                    .append("目标数据库: ").append(targetFields.get(fieldName)).append("\n");
+                            StringBuilder differences = new StringBuilder();
+                            differences.append("表：").append(tableName).append(" 字段：").append(fieldName).append(" 结构不一致:")
+                                    .append("源数据库: ").append(sourceFields.get(fieldName))
+                                    .append("目标数据库: ").append(targetFields.get(fieldName));
+                            details.add(differences.toString());
                         }
                     }
                 }
             }
         }
-        System.out.println(differences.toString());
-        return differences.toString();
+        taskDao.insetTaskDetail(taskId, details,formattedDate);
     }
 
 }

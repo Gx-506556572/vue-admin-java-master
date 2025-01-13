@@ -1,13 +1,12 @@
 package com.lmxdawn.api.admin.dao.DataBase;
 
-import com.lmxdawn.api.admin.entity.DataBase.CompareTask;
-import com.lmxdawn.api.admin.entity.DataBase.DataBaseEntity;
-import com.lmxdawn.api.admin.entity.DataBase.SourceDataBase;
-import com.lmxdawn.api.admin.entity.DataBase.TargetDataBase;
+import com.lmxdawn.api.admin.entity.DataBase.*;
 import com.lmxdawn.api.admin.req.DataBase.TargetDataBaseQueryRequest;
+import com.lmxdawn.api.admin.req.DataBase.TaskDetailQuery;
 import com.lmxdawn.api.admin.req.DataBase.TaskQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,4 +30,8 @@ public interface CompareTaskDao {
     DataBaseEntity getTargetDataBase(Integer id);
 
     String getDatabaseArgument(String databaseType, String databaseVersion);
+
+    Integer insetTaskDetail(Integer taskId, ArrayList<String> details, String formattedDate);
+
+    ArrayList<TaskDeatil> viewResult(TaskDetailQuery task);
 }

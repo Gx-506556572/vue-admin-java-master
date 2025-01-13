@@ -4,7 +4,9 @@ import com.github.pagehelper.PageInfo;
 import com.lmxdawn.api.admin.annotation.AuthRuleAnnotation;
 import com.lmxdawn.api.admin.entity.DataBase.CompareTask;
 import com.lmxdawn.api.admin.entity.DataBase.TargetDataBase;
+import com.lmxdawn.api.admin.entity.DataBase.TaskDeatil;
 import com.lmxdawn.api.admin.req.DataBase.TargetDataBaseQueryRequest;
+import com.lmxdawn.api.admin.req.DataBase.TaskDetailQuery;
 import com.lmxdawn.api.admin.req.DataBase.TaskQueryRequest;
 import com.lmxdawn.api.admin.res.PageSimpleResponse;
 import com.lmxdawn.api.admin.service.DataBase.CompareTaskService;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,11 +104,25 @@ public class CompareTaskController {
         return ResultVOUtils.success(sourceList);
     }
 
+    //查看比对结果
+    @AuthRuleAnnotation("/admin/compareTask/viewResult")
+    @PostMapping("/viewResult")
+    public BaseResponse viewResult(@RequestBody TaskDetailQuery task) {
+         List<TaskDeatil> list  =  taskService.viewResult(task);
+        PageInfo<TaskDeatil> pageInfo = new PageInfo<>(list);
+        PageSimpleResponse<TaskDeatil> pageSimpleResponse = new PageSimpleResponse<>();
+        pageSimpleResponse.setTotal(pageInfo.getTotal());
+        pageSimpleResponse.setList(list);
+        return ResultVOUtils.success(pageSimpleResponse);
+    }
+
+
     //启动
     @AuthRuleAnnotation("/admin/compareTask/startTask")
     @PostMapping("/startTask")
     public BaseResponse startTask(@RequestBody CompareTask  task) {
-      String s =  taskService.startTask(task);
+        //修改状态
+      String s =  taskService.updateTaskStatus(task);
         return ResultVOUtils.success(s);
     }
 }
