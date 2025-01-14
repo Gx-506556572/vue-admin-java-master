@@ -11,6 +11,8 @@ import com.lmxdawn.api.admin.req.DataBase.TaskQueryRequest;
 import com.lmxdawn.api.admin.service.DataBase.CompareTaskService;
 import com.lmxdawn.api.admin.service.DataBase.MyDataSourceManagement;
 import com.lmxdawn.api.admin.service.DataBase.TargetDataBaseService;
+import com.lmxdawn.api.common.res.BaseResponse;
+import com.lmxdawn.api.common.util.ResultVOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -96,16 +98,20 @@ public class CompareTaskServiceImpl implements CompareTaskService {
     }
 
     @Override
-    public String connectTest(DataBaseEntity entity) {
+    public BaseResponse connectTest(DataBaseEntity entity) {
         DataSourceProperty dataSourceProperty = new DataSourceProperty();
         dataSourceProperty.setDriverClassName(entity.getDatabaseDriver());
-        dataSourceProperty.setUrl(entity.getDatabaseUrl());
+        dataSourceProperty.setUrl(contactArgument(entity));
         dataSourceProperty.setUsername(entity.getUsername());
         dataSourceProperty.setPassword(entity.getPassword());
-        DataSource sourceBase=myDataSourceManagement.createAndGetDS(dataSourceProperty,entity.getDatabaseName());
-        //测试数据源连接
-        String res = myDataSourceManagement.validateDataSource(sourceBase);
-        return res;
+        try {
+            DataSource sourceBase=myDataSourceManagement.createAndGetDS(dataSourceProperty,entity.getDatabaseName());
+            //测试数据源连接
+            String res = myDataSourceManagement.validateDataSource(sourceBase);
+            return ResultVOUtils.success(0,res);
+        }catch (Exception e){
+            return ResultVOUtils.error(-1,e.getMessage());
+        }
     }
 
 
@@ -164,7 +170,7 @@ public class CompareTaskServiceImpl implements CompareTaskService {
     //获取目标数据库相关数据
     public DataBaseEntity getTargetDataBase(Integer id){
         DataBaseEntity targetDataBase = taskDao.getTargetDataBase(id);
-        targetDataBase.setDatabaseUrl(contactArgument(targetDataBase));
+        targetDataBase.setDatabaseUrl(targetDataBase.getDatabaseUrl() + contactArgument(targetDataBase));
         return targetDataBase;
     }
     //拼接数据库连接参数
@@ -172,14 +178,16 @@ public class CompareTaskServiceImpl implements CompareTaskService {
         String argument = taskDao.getDatabaseArgument(entity.getDatabaseType(), entity.getDatabaseVersion());
         if (entity.getDatabaseType().equals("KINGBASE") ){
             argument = argument + entity.getDatabaseName();
-        }else {
-            argument = entity.getDatabaseUrl() + argument;
         }
+        if (argument == null){
+            return entity.getServerUrl();
+        }
+            argument = entity.getDatabaseUrl() + argument;
        return argument;
     }
 
     public void compareTable(HashMap<String, Integer>sourceMap, HashMap<String, Integer>targetMap,Integer taskId){
-        ArrayList<String> details = new ArrayList<>();
+        ArrayList<TaskDeatil> details = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = now.format(formatter);
@@ -187,29 +195,35 @@ public class CompareTaskServiceImpl implements CompareTaskService {
         // 找出仅存在于 源数据库 中的表名
         for (String key : sourceMap.keySet()) {
             if (!targetMap.containsKey(key)) {
+                TaskDeatil deatil = new TaskDeatil();
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("仅存在于 源数据库 中的表: ").append(key);
-                details.add(stringBuilder.toString());
+                deatil.setTaskType("数据库表数量不一致").setTaskDetail(stringBuilder.toString());
+                details.add(deatil);
             }
         }
         // 找出仅存在于 目标数据库 中的表名
         for (String key : targetMap.keySet()) {
             if (!sourceMap.containsKey(key)) {
+                TaskDeatil deatil = new TaskDeatil();
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("仅存在于 目标数据库 中的表: ").append(key);
-                details.add(stringBuilder.toString());
+                deatil.setTaskType("数据库表数量不一致").setTaskDetail(stringBuilder.toString());
+                details.add(deatil);
             }
         }
 
         // 找出表名一致但数量不一致的表
         for (String key : sourceMap.keySet()) {
             if (targetMap.containsKey(key) && !sourceMap.get(key).equals(targetMap.get(key))) {
+                TaskDeatil deatil = new TaskDeatil();
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("表名一致但数量不一致的表: ").append(key)
                         .append(" 源数据库: ").append(sourceMap.get(key))
                         .append(", 目标数据库: ").append(targetMap.get(key));
                 System.out.println(stringBuilder.toString());
-                details.add(stringBuilder.toString());
+                deatil.setTaskType("数据库表中行数数不一致").setTaskDetail(stringBuilder.toString());
+                details.add(deatil);
             }
         }
         taskDao.insetTaskDetail(taskId, details,formattedDate);

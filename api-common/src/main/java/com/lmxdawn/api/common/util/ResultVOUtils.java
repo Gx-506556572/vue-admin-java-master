@@ -24,6 +24,15 @@ public class ResultVOUtils {
         return baseResponse;
     }
 
+    public static BaseResponse success(Integer code, String message) {
+        BaseResponse<Object> baseResponse = new BaseResponse<>();
+        baseResponse.setCode(code);
+        baseResponse.setMessage(message);
+        Map data = new HashMap();
+        baseResponse.setData(data);
+        return baseResponse;
+    }
+
     /**
      * 成功时返回
      * @return {@link BaseResponse}

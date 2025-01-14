@@ -87,24 +87,27 @@
     <select id="getDatabaseArgument" resultType="java.lang.String">
         select database_argument
         from database_argument
-        where database_type = #{databaseType} and database_version = #{databaseVersion}
+        where database_type = #{databaseType} and database_version = #{databaseVersion} and database_argument is not null
     </select>
 
     <insert id="insetTaskDetail" >
         INSERT INTO task_detail
-        (task_id, task_detail, create_time)
+        (task_id, task_type,task_detail, create_time)
         VALUES
         <foreach collection="details" item="detail" separator=",">
-            (#{taskId}, #{detail}, #{formattedDate})
+            (#{taskId}, #{detail.taskType},#{detail.taskDetail}, #{formattedDate})
         </foreach>
     </insert>
 
     <select id="viewResult" resultType="com.lmxdawn.api.admin.entity.DataBase.TaskDeatil">
-        select id,task_id,task_detail,create_time
+        select id,task_id,task_type,task_detail,create_time
         from task_detail
         where task_id = #{taskId} and del_flag = 0
         <if test="taskDetail != null and taskDetail != ''">
             AND task_detail LIKE '%' || #{taskDetail} || '%'
+        </if>
+        <if test="taskType != null and taskType != ''">
+            AND task_type LIKE '%' || #{taskType} || '%'
         </if>
     </select>
 </mapper>

@@ -9,6 +9,7 @@ public class TaskDeatil {
     private Integer id;
     private String taskId;
     private String taskDetail;
+    private String taskType;
     private String createTime;
 
 }

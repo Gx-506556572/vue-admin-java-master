@@ -45,22 +45,22 @@ public class MyDataSourceManagement {
 /*
         DataSource  dataSource = basicDataSourceCreator.createDataSource(dataSourceProperty);
             dynamicRoutingDataSource.addDataSource(dsID, dataSource);*/
+           HikariConfig config = new HikariConfig();
+           config.setJdbcUrl(dataSourceProperty.getUrl());
+           config.setUsername(dataSourceProperty.getUsername());
+           config.setPassword(dataSourceProperty.getPassword());
+           config.setDriverClassName(dataSourceProperty.getDriverClassName());
 
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(dataSourceProperty.getUrl());
-        config.setUsername(dataSourceProperty.getUsername());
-        config.setPassword(dataSourceProperty.getPassword());
-        config.setDriverClassName(dataSourceProperty.getDriverClassName());
+           // HikariCP specific configuration
+           config.setMaximumPoolSize(5); // 设置最大连接数
+           config.setIdleTimeout(600000); // 设置空闲连接的最大存活时间（10分钟）
+           config.setMaxLifetime(1800000); // 设置连接的最大存活时间（30分钟）
+           config.setConnectionTimeout(60000); // 设置获取连接的最大等待时间（300秒）
+           config.setPoolName("HikariPool-1");
 
-        // HikariCP specific configuration
-        config.setMaximumPoolSize(10); // 设置最大连接数
-        config.setIdleTimeout(600000); // 设置空闲连接的最大存活时间（10分钟）
-        config.setMaxLifetime(1800000); // 设置连接的最大存活时间（30分钟）
-        config.setConnectionTimeout(300000); // 设置获取连接的最大等待时间（300秒）
-        config.setPoolName("HikariPool-1");
+           HikariDataSource dataSource = new HikariDataSource(config);
+           return dataSource;
 
-        HikariDataSource dataSource = new HikariDataSource(config);
-        return dataSource;
     }
     public String closeDs( String dsID){
         dynamicRoutingDataSource.removeDataSource(dsID);
@@ -183,7 +183,7 @@ public class MyDataSourceManagement {
 
     // 比较两个数据库的表结构
     public void compareTableStructures(Map<String, Map<String, String>> sourceDataBase, Map<String, Map<String, String>> targetDataBase,Integer taskId) {
-        ArrayList<String> details = new ArrayList<>();
+        ArrayList<TaskDeatil> details = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = now.format(formatter);
@@ -199,11 +199,13 @@ public class MyDataSourceManagement {
                         String targetField = targetFields.get(fieldName).toLowerCase();
                         if (!sourceField.equals(targetField)) {
                             StringBuilder differences = new StringBuilder();
+                            TaskDeatil deatil = new TaskDeatil();
                             differences.append("表：").append(tableName).append(" 字段：").append(fieldName).append(" 结构不一致:")
                                     .append("源数据库: ").append(sourceFields.get(fieldName))
                                     .append("目标数据库: ").append(targetFields.get(fieldName));
+                            deatil.setTaskType("数据库表结构不一致").setTaskDetail(differences.toString());
                             System.out.println(differences.toString());
-                            details.add(differences.toString());
+                            details.add(deatil);
                         }
                     }
                 }

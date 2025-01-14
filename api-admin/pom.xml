@@ -76,7 +76,12 @@
             <artifactId>kingbase8</artifactId>
             <version>9.0.0</version>
         </dependency>
-
+        <!-- 瀚高数据库 依赖 -->
+        <dependency>
+            <groupId>com.highgo</groupId>
+            <artifactId>HgdbJdbc</artifactId>
+            <version>6.2.2</version>
+        </dependency>
         <!-- 添加 SQLite 依赖 -->
         <dependency>
             <groupId>org.xerial</groupId>

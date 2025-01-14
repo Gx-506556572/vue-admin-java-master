@@ -131,8 +131,6 @@ public class CompareTaskController {
     @AuthRuleAnnotation("/admin/compareTask/connectTest")
     @PostMapping("/connectTest")
     public BaseResponse connectTest(@RequestBody DataBaseEntity entity) {
-        //修改状态
-        String s =  taskService.connectTest(entity);
-        return ResultVOUtils.success(s);
+        return taskService.connectTest(entity);
     }
 }

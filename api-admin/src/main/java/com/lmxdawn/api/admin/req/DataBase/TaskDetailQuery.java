@@ -8,5 +8,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class TaskDetailQuery extends ListPageRequest {
     private String taskDetail;
+    private String taskType;
     private String taskId;
 }

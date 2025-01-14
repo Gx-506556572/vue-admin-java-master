@@ -7,6 +7,7 @@ import com.lmxdawn.api.admin.entity.DataBase.TaskDeatil;
 import com.lmxdawn.api.admin.req.DataBase.TargetDataBaseQueryRequest;
 import com.lmxdawn.api.admin.req.DataBase.TaskDetailQuery;
 import com.lmxdawn.api.admin.req.DataBase.TaskQueryRequest;
+import com.lmxdawn.api.common.res.BaseResponse;
 import javafx.concurrent.Task;
 
 import java.util.ArrayList;
@@ -32,5 +33,5 @@ public interface CompareTaskService {
 
     List<TaskDeatil> viewResult(TaskDetailQuery task);
 
-    String connectTest(DataBaseEntity entity);
+    BaseResponse connectTest(DataBaseEntity entity);
 }

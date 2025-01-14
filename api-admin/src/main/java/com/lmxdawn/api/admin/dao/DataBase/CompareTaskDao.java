@@ -5,6 +5,7 @@ import com.lmxdawn.api.admin.req.DataBase.TargetDataBaseQueryRequest;
 import com.lmxdawn.api.admin.req.DataBase.TaskDetailQuery;
 import com.lmxdawn.api.admin.req.DataBase.TaskQueryRequest;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public interface CompareTaskDao {
 
     String getDatabaseArgument(String databaseType, String databaseVersion);
 
-    Integer insetTaskDetail(Integer taskId, ArrayList<String> details, String formattedDate);
+    Integer insetTaskDetail(Integer taskId, @Param("details") ArrayList<TaskDeatil> details, String formattedDate);
 
     ArrayList<TaskDeatil> viewResult(TaskDetailQuery task);
 }
