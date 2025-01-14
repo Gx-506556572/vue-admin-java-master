@@ -95,6 +95,19 @@ public class CompareTaskServiceImpl implements CompareTaskService {
         return list;
     }
 
+    @Override
+    public String connectTest(DataBaseEntity entity) {
+        DataSourceProperty dataSourceProperty = new DataSourceProperty();
+        dataSourceProperty.setDriverClassName(entity.getDatabaseDriver());
+        dataSourceProperty.setUrl(entity.getDatabaseUrl());
+        dataSourceProperty.setUsername(entity.getUsername());
+        dataSourceProperty.setPassword(entity.getPassword());
+        DataSource sourceBase=myDataSourceManagement.createAndGetDS(dataSourceProperty,entity.getDatabaseName());
+        //测试数据源连接
+        String res = myDataSourceManagement.validateDataSource(sourceBase);
+        return res;
+    }
+
 
     public String  startTask(CompareTask task) {
         DataBaseEntity sourceDataBase = getSourceDataBase(task.getSourceId());
@@ -145,22 +158,24 @@ public class CompareTaskServiceImpl implements CompareTaskService {
     //获取源数据库相关数据
     public DataBaseEntity getSourceDataBase(Integer id){
         DataBaseEntity sourceDataBase = taskDao.getSourceDataBase(id);
-        String argument = taskDao.getDatabaseArgument(sourceDataBase.getDatabaseType(), sourceDataBase.getDatabaseVersion());
-        if (sourceDataBase.getDatabaseType().equals("KINGBASE")){
-            argument = argument + sourceDataBase.getDatabaseName();
-        }
-        sourceDataBase.setDatabaseUrl(sourceDataBase.getDatabaseUrl() + argument);
+        sourceDataBase.setDatabaseUrl(contactArgument(sourceDataBase));
         return sourceDataBase;
     }
     //获取目标数据库相关数据
     public DataBaseEntity getTargetDataBase(Integer id){
         DataBaseEntity targetDataBase = taskDao.getTargetDataBase(id);
-        String argument = taskDao.getDatabaseArgument(targetDataBase.getDatabaseType(), targetDataBase.getDatabaseVersion());
-        if (targetDataBase.getDatabaseType().equals("KINGBASE") ){
-            argument = argument + targetDataBase.getDatabaseName();
-        }
-        targetDataBase.setDatabaseUrl(targetDataBase.getDatabaseUrl() + argument);
+        targetDataBase.setDatabaseUrl(contactArgument(targetDataBase));
         return targetDataBase;
+    }
+    //拼接数据库连接参数
+    public String contactArgument(DataBaseEntity entity){
+        String argument = taskDao.getDatabaseArgument(entity.getDatabaseType(), entity.getDatabaseVersion());
+        if (entity.getDatabaseType().equals("KINGBASE") ){
+            argument = argument + entity.getDatabaseName();
+        }else {
+            argument = entity.getDatabaseUrl() + argument;
+        }
+       return argument;
     }
 
     public void compareTable(HashMap<String, Integer>sourceMap, HashMap<String, Integer>targetMap,Integer taskId){

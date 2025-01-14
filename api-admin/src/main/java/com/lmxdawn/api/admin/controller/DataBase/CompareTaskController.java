@@ -3,6 +3,7 @@ package com.lmxdawn.api.admin.controller.DataBase;
 import com.github.pagehelper.PageInfo;
 import com.lmxdawn.api.admin.annotation.AuthRuleAnnotation;
 import com.lmxdawn.api.admin.entity.DataBase.CompareTask;
+import com.lmxdawn.api.admin.entity.DataBase.DataBaseEntity;
 import com.lmxdawn.api.admin.entity.DataBase.TargetDataBase;
 import com.lmxdawn.api.admin.entity.DataBase.TaskDeatil;
 import com.lmxdawn.api.admin.req.DataBase.TargetDataBaseQueryRequest;
@@ -123,6 +124,15 @@ public class CompareTaskController {
     public BaseResponse startTask(@RequestBody CompareTask  task) {
         //修改状态
       String s =  taskService.updateTaskStatus(task);
+        return ResultVOUtils.success(s);
+    }
+
+    //测试连接
+    @AuthRuleAnnotation("/admin/compareTask/connectTest")
+    @PostMapping("/connectTest")
+    public BaseResponse connectTest(@RequestBody DataBaseEntity entity) {
+        //修改状态
+        String s =  taskService.connectTest(entity);
         return ResultVOUtils.success(s);
     }
 }

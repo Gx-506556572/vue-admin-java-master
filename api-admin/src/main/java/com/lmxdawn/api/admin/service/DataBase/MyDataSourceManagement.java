@@ -212,4 +212,20 @@ public class MyDataSourceManagement {
         taskDao.insetTaskDetail(taskId, details,formattedDate);
     }
 
+
+    public String validateDataSource(DataSource dataSource) {
+        try (Connection conn = dataSource.getConnection()) {
+            String validationQuery = "SELECT 1";
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(validationQuery)) {
+                if (!(rs.next() && rs.getInt(1) == 1)) {
+                    throw new RuntimeException("数据源连接验证失败：查询结果不正确");
+                }
+                return "数据源连接验证成功";
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("数据源连接验证失败", e);
+        }
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.lmxdawn.api.admin.service.DataBase;
 
 import com.lmxdawn.api.admin.entity.DataBase.CompareTask;
+import com.lmxdawn.api.admin.entity.DataBase.DataBaseEntity;
 import com.lmxdawn.api.admin.entity.DataBase.TargetDataBase;
 import com.lmxdawn.api.admin.entity.DataBase.TaskDeatil;
 import com.lmxdawn.api.admin.req.DataBase.TargetDataBaseQueryRequest;
@@ -30,4 +31,6 @@ public interface CompareTaskService {
     String updateTaskStatus(CompareTask task);
 
     List<TaskDeatil> viewResult(TaskDetailQuery task);
+
+    String connectTest(DataBaseEntity entity);
 }
