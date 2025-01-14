@@ -176,7 +176,7 @@ public class CompareTaskServiceImpl implements CompareTaskService {
     //拼接数据库连接参数
     public String contactArgument(DataBaseEntity entity){
         String argument = taskDao.getDatabaseArgument(entity.getDatabaseType(), entity.getDatabaseVersion());
-        if (entity.getDatabaseType().equals("KINGBASE") ){
+        if (entity.getDatabaseType().equals("KINGBASE")|| entity.getDatabaseType().equals("HighGo") ){
             argument = argument + entity.getDatabaseName();
         }
         if (argument == null){
