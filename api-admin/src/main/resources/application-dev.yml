@@ -12,13 +12,8 @@ spring:
       grace-destroy: false #是否优雅关闭数据源，默认为false，设置为true时，关闭数据源时如果数据源中还存在活跃连接，至多等待10s后强制关闭
       datasource:
         master:
-          url: jdbc:sqlite:sqlTools.db
+          url: jdbc:sqlite::resource:sqlTools.db
           driver-class-name: org.sqlite.JDBC
-          hikari:
-            max-lifetime: 900000
-            max-pool-size: 12
-            connection-timeout: 30000
-            idle-timeout: 600000
 
 #公共文件的配置
 # 上传的地址
@@ -31,4 +26,5 @@ cors:
   allowed-origins: http://localhost:8080
   allowed-headers: Content-Type,X-Adminid,X-Token
   allowed-methods: GET,POST,OPTIONS
+
 
